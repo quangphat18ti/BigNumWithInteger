@@ -49,7 +49,7 @@ bool test(BigIntegerBinary &a, BigIntegerBinary &n) {
 
 bool MillerRabin(BigIntegerBinary n, vector<int> primes, int k = 5) {
     BigIntegerBinary n_minus_1 = n - BigIntegerBinary("1");
-    for(int i = 0; i <= 15; i++) {
+    for(int i = 0; i <= 10; i++) {
         cerr << primes[i] << endl;
         BigIntegerBinary a = BigIntegerBinary(int_to_binary(primes[i]));
         if(a >= n) {

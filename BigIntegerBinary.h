@@ -3,7 +3,7 @@
 
 using namespace std;
 
-const int MAX_BIT = 258;
+const int MAX_BIT = 515;
 
 class BigIntegerBinary{
   bitset<MAX_BIT> bits;
