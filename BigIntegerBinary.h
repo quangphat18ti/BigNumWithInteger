@@ -26,6 +26,7 @@ public:
   BigIntegerBinary operator ++ (int i) { BigIntegerBinary temp = *this; *this = *this + BigIntegerBinary("1"); return temp; }
   BigIntegerBinary operator ++ () { *this = *this + BigIntegerBinary("1"); return *this; }
   bool             operator == (const BigIntegerBinary& a) const { return bits == a.bits && sign == a.sign; }
+  bool             operator != (const BigIntegerBinary& a) { return !(*this == a); }
   bool             operator <  (const BigIntegerBinary& a);
   bool             operator <=  (const BigIntegerBinary& a);
   bool             operator >  (const BigIntegerBinary& a);
@@ -33,12 +34,18 @@ public:
   bool operator [](int i) const;
   void set(int i, bool value) { bits.set(i, value); }
   BigIntegerBinary operator >> (int i);
+  BigIntegerBinary operator << (int i);
   BigIntegerBinary operator %    (const BigIntegerBinary& a);
   BigIntegerBinary operator %=   (const BigIntegerBinary& a);
+  BigIntegerBinary operator *    (const BigIntegerBinary& a);
 
 public:
   BigIntegerBinary powMod(BigIntegerBinary d, BigIntegerBinary n);
   BigIntegerBinary mulMod(BigIntegerBinary d, BigIntegerBinary n);
+  bool             none();
+  int              count();
+  int              max_bit();
+  BigIntegerBinary cut(int pos) const;
 };
 
 bitset<MAX_BIT> operator+   (const bitset<MAX_BIT>& a, const bitset<MAX_BIT>& b);

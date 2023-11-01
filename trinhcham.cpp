@@ -39,7 +39,7 @@ int main()
         out << "test/test_" << setw(2) << setfill('0') << i << ".out";
         
         auto start = std::chrono::high_resolution_clock::now();
-        int exitCode = system(("main.exe " + inp.str() + " " + ans.str()).c_str());
+        int exitCode = system(("./main.exe " + inp.str() + " " + ans.str()).c_str());
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> duration = end - start;
 
@@ -52,6 +52,7 @@ int main()
             cout << "Test " << i << " failed: Incorrect!." << endl;
             cout << "Time: " << duration.count() << "s" <<endl;
         }
+        cout << "------------------------------------" << endl;
 
         // if (exitCode == 0) {
         //     cout << "Test " << i << " passed." << endl;

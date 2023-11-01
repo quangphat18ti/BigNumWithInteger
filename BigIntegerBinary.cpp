@@ -162,15 +162,17 @@ BigIntegerBinary BigIntegerBinary::powMod(BigIntegerBinary d, BigIntegerBinary n
   // Không xử lý với mũ âm
   assert(d.sign == 1);
 
-  if(d == BigIntegerBinary("0")) {
+  if(d.none()) {
     return BigIntegerBinary("1");
   }
   
-  if(d == BigIntegerBinary("1")) {
+  if(d[0] == 1 && d.count() == 1) {
     return *this;
   }
 
-  BigIntegerBinary result("1");
+  BigIntegerBinary result;
+  result.set(0, 1);
+  
   if(sign == 1) {
     result.sign = 1;
   } else {
@@ -218,6 +220,37 @@ BigIntegerBinary BigIntegerBinary::mulMod(BigIntegerBinary d, BigIntegerBinary n
   return result;
 }
 
+bool BigIntegerBinary::none()
+{
+  return bits.none();
+}
+
+int BigIntegerBinary::count()
+{
+  return bits.count();
+}
+
+int BigIntegerBinary::max_bit()
+{
+  for(int i = MAX_BIT - 1; i >= 0; i--) {
+    if(bits[i] == 1) {
+      return i;
+    }
+  }
+  return 0;
+}
+
+BigIntegerBinary BigIntegerBinary::cut(int pos) const
+{
+  string s = this->to_string();
+  int size = (int)s.size();
+
+  // bo pos - 1 gia tri cuoi
+  string new_s = s.substr(0, size - pos);
+  return BigIntegerBinary(new_s);
+}
+
+
 ostream &operator<<(ostream &out, const BigIntegerBinary &a)
 {
   // TODO: insert return statement here
@@ -228,10 +261,10 @@ ostream &operator<<(ostream &out, const BigIntegerBinary &a)
 bitset<MAX_BIT> operator+(const bitset<MAX_BIT> &a, const bitset<MAX_BIT> &b)
 {
   bitset<MAX_BIT> result;
-  int carry = 0;
+  bool carry = 0;
 
   for(int i = 0; i < MAX_BIT; i++) {
-    int sum = a[i] + b[i] + carry;
+    char sum = a[i] + b[i] + carry;
     result[i] = sum % 2;
     carry = sum / 2;
   }
@@ -242,10 +275,10 @@ bitset<MAX_BIT> operator+(const bitset<MAX_BIT> &a, const bitset<MAX_BIT> &b)
 bitset<MAX_BIT> operator-(const bitset<MAX_BIT> &a, const bitset<MAX_BIT> &b)
 {
   bitset<MAX_BIT> result;
-  int carry = 0;
+  bool carry = 0;
 
   for(int i = 0; i < MAX_BIT; i++) {
-    int sum = a[i] - b[i] - carry;
+    char sum = a[i] - b[i] - carry;
 
     if(sum < 0) {
       sum += 2;
@@ -306,3 +339,4 @@ bool operator>=(const bitset<MAX_BIT> &a, const bitset<MAX_BIT> &b)
   }
   return true;
 }
+
