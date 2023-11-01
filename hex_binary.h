@@ -16,6 +16,7 @@ string hex_to_bin(string a_hex) {
 }
 
 string bin_to_hex(string a_bin) {
+    
     string a_hex;
     for (int i = 0; i < int(a_bin.size()); i += 4) {
         int num = 0;
@@ -37,6 +38,9 @@ string int_to_binary(int x) {
     if(x < 0) {
         temp = "-";
         x = -x;
+    }
+    if(x == 0) {
+        return "0";
     }
     while (x > 0) {
         a_bin = to_string(x % 2) + a_bin;
