@@ -271,7 +271,10 @@ BigNumWithInteger BigNumWithInteger::operator%(const BigNumWithInteger &a) const
   BigNumWithInteger ans(*this);
   if(ans < a) return ans;
 
-  
+  while(ans >= a) {
+    ans = ans - a;
+  }
+  ans.trim();
   return ans;
 }
 
