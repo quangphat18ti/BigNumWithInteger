@@ -16,7 +16,7 @@ typedef long long ll;
 typedef unsigned int uint;
 
 class BigNumWithInteger{
-  using TYPE = ll;
+  using TYPE = int;
 
   vector<TYPE>     digits;
   int sign;  // sign == 1 is positive, sign == -1 is negative

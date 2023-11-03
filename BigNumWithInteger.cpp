@@ -184,7 +184,7 @@ bool BigNumWithInteger::operator>=(const BigNumWithInteger &a)
   return !(*this < a);
 }
 
-ll& BigNumWithInteger::operator[](int i) 
+int& BigNumWithInteger::operator[](int i) 
 {
   if(i < 0 || i > size()) {
     throw "Index out of range";
