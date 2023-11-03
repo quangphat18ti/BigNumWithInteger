@@ -3,24 +3,26 @@
 #include<vector>
 #include<algorithm>
 
+typedef long long ll;
+
 using namespace std;
 
 const int MAX_BIT = 515;
 const int BIT_PER_DIGIT = 30;
-const int BASE = 1 << BIT_PER_DIGIT;
+const ll BASE = 1ll << BIT_PER_DIGIT;
 const int MAX_SIZE = MAX_BIT / BIT_PER_DIGIT + 1;
 
 typedef long long ll;
 typedef unsigned int uint;
 
 class BigNumWithInteger{
-  using TYPE = int;
+  using TYPE = ll;
 
   vector<TYPE>     digits;
   int sign;  // sign == 1 is positive, sign == -1 is negative
 public:
   BigNumWithInteger();
-  BigNumWithInteger(int);
+  BigNumWithInteger(ll);
   BigNumWithInteger(string);
   BigNumWithInteger(const BigNumWithInteger& a) : digits(a.digits), sign(a.sign) { }
 
@@ -53,17 +55,9 @@ public:
 public:
   BigNumWithInteger mulMod(BigNumWithInteger d, BigNumWithInteger n);
   BigNumWithInteger powMod(BigNumWithInteger d, BigNumWithInteger n);
-//   int              max_bit();
-     void             trim();
-     int              size() const;
-     int              bit_size() const;
-     bool             is_zero() const;
+  int              max_bit() {return bit_size(); }
+    void             trim();
+    int              size() const;
+    int              bit_size() const;
+    bool             is_zero() const;
 };
-
-// digitset<MAX_BIT> operator+   (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);
-// digitset<MAX_BIT> operator-   (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);
-
-// bool            operator <  (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);
-// bool            operator <= (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);
-// bool            operator >  (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);
-// bool            operator >= (const digitset<MAX_BIT>& a, const digitset<MAX_BIT>& b);

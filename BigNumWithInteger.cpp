@@ -10,7 +10,7 @@ BigNumWithInteger::BigNumWithInteger()
   sign = 1;
 }
 
-BigNumWithInteger::BigNumWithInteger(int s) {
+BigNumWithInteger::BigNumWithInteger(ll s) {
   digits.clear();
   if(s < 0) {
     sign = -1;
@@ -89,8 +89,8 @@ BigNumWithInteger BigNumWithInteger::operator+(const BigNumWithInteger &a)
       sum = carry;
       if(i < n) sum += digits[i];
       if(i < m) sum += a.digits[i];
-      ans.digits[i] = sum % BASE;
-      carry = sum / BASE;
+      ans.digits[i] = sum & (BASE - 1);
+      carry = sum >> BIT_PER_DIGIT;
     }
     ans.digits[max(n, m)] = carry;
     ans.trim();
@@ -184,7 +184,7 @@ bool BigNumWithInteger::operator>=(const BigNumWithInteger &a)
   return !(*this < a);
 }
 
-int& BigNumWithInteger::operator[](int i) 
+ll& BigNumWithInteger::operator[](int i) 
 {
   if(i < 0 || i > size()) {
     throw "Index out of range";
@@ -321,13 +321,46 @@ BigNumWithInteger BigNumWithInteger::abs() const
 BigNumWithInteger BigNumWithInteger::mulMod(BigNumWithInteger d, BigNumWithInteger n)
 {
   BigNumWithInteger ans;
+  ans.sign = this->sign * d.sign;
+  if(d.is_zero() || this->is_zero()) {
+    return ans;
+  }
+
+  string binary = d.to_string();
+  reverse(binary.begin(), binary.end());
   
+  
+  BigNumWithInteger temp = (*this) % n;
+  for(int i = 0; i < binary.size(); i++) {
+    if(binary[i] == '1') {
+      ans = (ans + temp) % n;
+    }
+    temp = (temp + temp) % n;
+  }
+
   return ans;
 }
 
 BigNumWithInteger BigNumWithInteger::powMod(BigNumWithInteger d, BigNumWithInteger n)
 {
-  return BigNumWithInteger();
+  BigNumWithInteger ans(1);
+  BigNumWithInteger x(*this);
+  if(d.is_zero())  return ans;
+
+  string binary = d.to_string();
+  reverse(binary.begin(), binary.end());
+
+  for(int i = binary.size() - 1; i >= 0; i--) {
+    int ans_sz = ans.size();
+
+    if(! (ans.is_zero() || (ans.size() == 1 && ans[0] == 1 && ans.sign == 1)))  
+      ans = ans.mulMod(ans, n);
+
+    if(binary[i] == '1') {
+      ans = ans.mulMod(x, n);
+    }
+  }
+  return ans;
 }
 
 ostream &operator<<(ostream & out, const BigNumWithInteger &a)
