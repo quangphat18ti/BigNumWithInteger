@@ -1,22 +1,22 @@
 #include <iostream>
 #include <fstream>
-#include <string.h>
-#include <bitset>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
+#include <bitset>
 
 using namespace std;
+#define ll long long
 
 const int MAX_BIT = 512;
-typedef bitset<MAX_BIT> nBit;
+const int MAX_ADD = 60;
+const int LONG_LONG_BITS = 61;
 
 std::chrono::time_point<std::chrono::high_resolution_clock> start;
 std::chrono::duration<double> duration;
 
 int resPrime = 0;
-
 string hexToBin(string a)
 {
     string res;
@@ -32,236 +32,248 @@ string hexToBin(string a)
     }
     return res;
 }
-vector<nBit> primeBitset()
+
+void popZero(vector<ll> &x)
 {
-    int pr[168] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997};
-    vector<nBit> res;
-    for (int i = 0; i < 168; i++)
-        res.push_back(nBit(pr[i]));
+    while (x.size() && x[x.size() - 1] == 0)
+        x.pop_back();
+}
+
+vector<ll> hexToLongLong(const string &a)
+{
+    vector<ll> res;
+    int len = a.length();
+    for (int i = len - 1; i >= 0; i -= LONG_LONG_BITS)
+    {
+        ll value = 0;
+        int bits = min(LONG_LONG_BITS, i + 1);
+        for (int j = 0; j < bits; ++j)
+        {
+            int index = i - j;
+            value |= (static_cast<ll>(a[index] - '0') << j);
+        }
+        res.push_back(value);
+    }
+    popZero(res);
     return res;
 }
+
+vector<ll> primeLongLong()
+{
+    int pr[168] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997};
+    vector<ll> res;
+    for (int i = 0; i < 168; i++)
+        res.push_back(pr[i]);
+    return res;
+}
+
 bool checkTime()
 {
     auto end = std::chrono::high_resolution_clock::now();
     duration = end - start;
     return duration.count() > 59;
 }
+
 bool checkAns()
 {
     return resPrime >= 3;
 }
-bitset<MAX_BIT + 1> addBs(nBit &x, nBit &y)
+void print(const vector<ll> &x)
 {
-    bool carry = 0;
-    int x_1 = x.count();
-    int y_1 = y.count();
-    bitset<MAX_BIT + 1> res;
-    for (int i = 0; i < MAX_BIT; i++)
-    {
-        if(checkTime())
-            return 0;
-
-        res[i] = (x[i] ^ y[i]) ^ carry;
-        carry = (x[i] & y[i]) | (carry & (x[i] ^ y[i]));
-
-        x_1 -= x[i];
-        y_1 -= y[i];
-
-        if (carry == 0 && x_1 == 0 && y_1 == 0)
-            break;
-    }
-    res[MAX_BIT] = carry;
-    return res;
+    for (ll v : x)
+        cout << v << endl;
 }
-bool subBit(bool b1, bool b2, bool &borrow)
+
+vector<ll> addLongLong(const vector<ll> &x, const vector<ll> &y)
 {
-    bool diff;
-    if (borrow)
+    vector<ll> res;
+    ll carry = 0;
+    for (size_t i = 0; i < max(x.size(), y.size()) || carry; ++i)
     {
-        diff = !(b1 ^ b2);
-        borrow = !b1 || (b1 && b2);
-    }
-    else
-    {
-        diff = b1 ^ b2;
-        borrow = !b1 && b2;
-    }
-    return diff;
-}
-bitset<MAX_BIT + 1> subBs(bitset<MAX_BIT + 1> &x, nBit &mod)
-{
-    bool borrow = 0;
-    bitset<MAX_BIT + 1> res;
-    for (int i = 0; i < MAX_BIT; i++)
-    {
-        if(checkTime())
-            return 0;
-
-        res[i] = subBit(x[i], mod[i], borrow);
-    }
-
-    if (borrow)
-        res[MAX_BIT] = 0;
-    else
-        res[MAX_BIT] = x[MAX_BIT];
-    return res;
-}
-// int compBit(bitset<MAX_BIT + 1> &x, nBit &y)
-// {
-//     if(x[MAX_BIT] == 1) return 1;
-//     for(int i = MAX_BIT - 1; i>=0;i--)
-//         if(x[i] > y[i]) return 1;
-//         else if(x[i] < y[i]) return -1;
-//     return 0;
-// }
-nBit modBs(bitset<MAX_BIT + 1> x, nBit &mod)
-{
-    while (x[MAX_BIT] == 1 || x.to_string().substr(1, MAX_BIT) >= mod.to_string())
-    {
-        if(checkTime())
-            return 0;
-        x = subBs(x, mod);
-    }
-
-    string temp = x.to_string().substr(1, MAX_BIT);
-    nBit res = nBit(temp);
-    return res;
-}
-nBit addMod(nBit &x, nBit &y, nBit &mod)
-{
-    if (x == 0)
-        return modBs(bitset<MAX_BIT + 1>(y.to_string()), mod);
-    if (y == 0)
-        return modBs(bitset<MAX_BIT + 1>(x.to_string()), mod);
-
-    bitset<MAX_BIT + 1> res = addBs(x, y);
-    return modBs(res, mod);
-}
-nBit mulMod(nBit &x, nBit &y, nBit &mod)
-{
-    nBit res = nBit(0);
-    if (y == 0 || x == 0)
-        return res;
-    if (x == 1)
-        return modBs(bitset<MAX_BIT + 1>(y.to_string()), mod);
-    if (y == 1)
-        return modBs(bitset<MAX_BIT + 1>(x.to_string()), mod);
-
-    nBit temp = x;
-    int y_1 = y.count();
-    for (int i = 0; i < MAX_BIT; i++)
-    {
-        if(checkTime())
-            return 0;
-
-        if (y[i] == 1)
-            res = addMod(res, temp, mod), y_1--;
-        if (y_1 == 0)
-            break;
-        
-        if(checkTime())
-            return 0;
-
-        bitset<MAX_BIT + 1> tt = bitset<MAX_BIT + 1>(temp.to_string());
-        tt <<= 1;
-        temp = modBs(tt, mod);
+        ll sum = carry;
+        if (i < x.size())
+            sum += x[i];
+        if (i < y.size())
+            sum += y[i];
+        res.push_back(sum & ((1ll << LONG_LONG_BITS) - 1));
+        carry = sum >> LONG_LONG_BITS;
     }
     return res;
 }
-nBit powerMod(nBit &x, nBit &y, nBit &mod)
+vector<ll> subLongLong(const vector<ll> &x, const vector<ll> &y)
 {
-    nBit res = nBit(1);
-    if (y == 0)
-        return res;
-    if (y == 1)
-        return modBs(bitset<MAX_BIT + 1>(x.to_string()), mod);
-    for (int i = MAX_BIT - 1; i >= 0; i--)
+    vector<ll> res;
+    ll borrow = 0;
+    for (size_t i = 0; i < x.size(); ++i)
     {
-        if(checkTime())
-            return 0;
-
-        if (res != nBit(1))
-            res = mulMod(res, res, mod);
-
-        if(checkTime())
-            return 0;
-        
-        if (y[i] == 1)
-            res = mulMod(res, x, mod);
+        ll diff = x[i] - borrow;
+        borrow = 0;
+        if (i < y.size())
+            diff -= y[i];
+        if (diff < 0)
+            diff += (1ll << LONG_LONG_BITS), borrow = 1;
+        res.push_back(diff);
     }
+    popZero(res);
     return res;
 }
-bool checkPrime(string &s, vector<nBit> &p)
+
+int compare(const vector<ll> &x, const vector<ll> &y)
 {
-    nBit sbs = nBit(s);
-    nBit fbs = (sbs ^ nBit(1));
-    if (sbs == nBit(1))
-        return 0;
-    if (sbs == nBit(2))
+    if (x.size() > y.size())
         return 1;
-
-    int kt[200];
-    for (int i = 0; i < 168; i++)
+    if (x.size() < y.size())
+        return -1;
+    for (int i = x.size() - 1; i >= 0; i--)
     {
-        kt[i] = 0;
-        if (p[i] == sbs)
+        if (x[i] > y[i])
             return 1;
+        if (x[i] < y[i])
+            return -1;
+    }
+    return 0;
+}
+
+vector<ll> modLongLong(const vector<ll> &x, const vector<ll> &mod)
+{
+    vector<ll> temp = x;
+    while (compare(temp, mod) >= 0)
+    {
+        if (checkTime())
+            return vector<ll>();
+        temp = subLongLong(temp, mod);
+    }
+    return temp;
+}
+
+vector<ll> addModLongLong(const vector<ll> &x, const vector<ll> &y, const vector<ll> &mod)
+{
+    if (x.empty())
+        return modLongLong(y, mod);
+    if (y.empty())
+        return modLongLong(x, mod);
+
+    vector<ll> res = addLongLong(x, y);
+    return modLongLong(res, mod);
+}
+
+vector<ll> mulModLongLong(const vector<ll> &x, const vector<ll> &y, const vector<ll> &mod)
+{
+    vector<ll> res;
+    if (y.empty() || x.empty())
+        return res;
+
+    vector<ll> temp = x;
+    for (size_t i = 0; i < y.size() * LONG_LONG_BITS; ++i)
+    {
+        if (checkTime())
+            return vector<ll>();
+        if (y[i / LONG_LONG_BITS] & (1ll << (i % LONG_LONG_BITS)))
+        {
+            res = addModLongLong(res, temp, mod);
+        }
+        temp = addModLongLong(temp, temp, mod);
+    }
+    return res;
+}
+
+vector<ll> powerModLongLong(const vector<ll> &x, const vector<ll> &y, const vector<ll> &mod)
+{
+    vector<ll> res = {1};
+    if (y.empty())
+        return res;
+    for (int i = y.size() * LONG_LONG_BITS - 1; i >= 0; --i)
+    {
+        if (checkTime())
+            return vector<ll>();
+        if (res.size() != 1 || res[0] != 1)
+        {
+            res = mulModLongLong(res, res, mod);
+        }
+        if (y[i / LONG_LONG_BITS] & (1ll << (i % LONG_LONG_BITS)))
+        {
+            res = mulModLongLong(res, x, mod);
+        }
+    }
+    return res;
+}
+
+bool checkPrime(const vector<ll> &s, const vector<ll> &p, vector<ll> m, int r)
+{
+    vector<ll> fbs = subLongLong(s, {1});
+    if (s == vector<ll>{1})
+        return false;
+    if (s == vector<ll>{2})
+        return true;
+
+    vector<int> kt(200, 0);
+    if (s.size() == 1)
+    {
+        for (size_t i = 0; i < p.size(); i++)
+            if (p[i] == s[0])
+                return true;
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 20; i++)
     {
-        int randPrime = std::rand() % p.size();
+        int randPrime = std::rand() % 100;
         while (kt[randPrime] == 1)
-            randPrime = std::rand() % p.size();
+            randPrime = std::rand() % 100;
 
-        // int randPrime = std::rand() % 50;
-        // while (kt[randPrime] == 1)
-        //     randPrime = std::rand() % 50;
-
-        nBit p_i = p[randPrime];
+        vector<ll> p_i = {p[randPrime]};
+        //        vector<ll> p_i = {3};
         kt[randPrime] = 1;
 
-        nBit temp = (sbs ^ nBit(1));
+        vector<ll> temp = fbs;
 
-        nBit m = temp;
-        int r = 0;
-        while (m[0] == 0)
-            m >>= 1, r++;
+        vector<ll> ans = powerModLongLong(p_i, m, s);
 
-        if(checkTime())
+        if (checkTime())
             return checkAns();
 
-        nBit ans = powerMod(p_i, m, sbs);
+        if (ans == vector<ll>{1} || ans == fbs)
+        {
+            ans = mulModLongLong(ans, ans, s);
+            if (ans == vector<ll>{1})
+            {
+                resPrime++;
+                continue;
+            }
+            else
+                return false;
+        }
 
-        if(checkTime())
-            return checkAns();
-
-        bool check = 0;
+        bool check = false;
         for (int i = 1; i <= r; i++)
         {
-            nBit pre = ans;
-            ans = mulMod(ans, ans, sbs);
-            if (ans == nBit(1) || (ans == fbs && i != r))
+            ans = mulModLongLong(ans, ans, s);
+            if (ans == fbs && i != r)
             {
-                if (ans == nBit(1))
-                    resPrime++;
-                else
-                    resPrime += 2;
-
-                if(ans == nBit(1) && pre != nBit(1) && pre != fbs)
-                    return 0;
-
-                check = 1;
+                resPrime += 2;
+                check = true;
                 break;
             }
-
-            if(checkTime())
+            if (checkTime())
                 return checkAns();
         }
         if (!check)
-            return 0;
+            return false;
     }
-    return 1;
+    return true;
+}
+vector<ll> find_m_r(string s, int &r)
+{
+    s[s.size() - 1] = 0;
+    int i;
+    for (i = s.size() - 1; i >= 0; i--)
+    {
+        if (s[i] == '1')
+            break;
+        r++;
+    }
+    s = s.substr(0, i + 1);
+    vector<ll> m = hexToLongLong(s);
+    return m;
 }
 int main(int argc, char *argv[])
 {
@@ -288,14 +300,17 @@ int main(int argc, char *argv[])
     start = std::chrono::high_resolution_clock::now();
     string s;
     string sbn;
-    vector<nBit> p_bs;
+    vector<ll> p_bs;
 
     inp >> s;
 
     sbn = hexToBin(s);
-    p_bs = primeBitset();
+    int r = 0;
+    vector<ll> m = find_m_r(sbn, r);
 
-    out << checkPrime(sbn, p_bs);
+    p_bs = primeLongLong();
+
+    out << checkPrime(hexToLongLong(sbn), p_bs, m, r);
 
     inp.close();
     out.close();
