@@ -7,10 +7,10 @@ typedef long long ll;
 
 using namespace std;
 
-const int MAX_BIT = 515;
+// const int MAX_BIT = 1024 + 5;
 const int BIT_PER_DIGIT = 30;
 const ll BASE = 1ll << BIT_PER_DIGIT;
-const int MAX_SIZE = MAX_BIT / BIT_PER_DIGIT + 1;
+// const int MAX_SIZE = MAX_BIT / BIT_PER_DIGIT + 1;
 
 typedef long long ll;
 typedef unsigned int uint;
@@ -47,8 +47,8 @@ public:
   void set(int i, TYPE value) { digits[i] = value; }
   BigNumWithInteger operator >> (int i);
   BigNumWithInteger operator << (int i);
-  BigNumWithInteger operator %    (const BigNumWithInteger& a) const;
-  BigNumWithInteger operator %=   (const BigNumWithInteger& a);
+  BigNumWithInteger operator %    (BigNumWithInteger a) const;
+  BigNumWithInteger operator %=   (const BigNumWithInteger a);
   BigNumWithInteger operator *    (const BigNumWithInteger& a) const;
   BigNumWithInteger abs           () const;
 
@@ -56,8 +56,9 @@ public:
   BigNumWithInteger mulMod(BigNumWithInteger d, BigNumWithInteger n);
   BigNumWithInteger powMod(BigNumWithInteger d, BigNumWithInteger n);
   int              max_bit() {return bit_size(); }
-    void             trim();
-    int              size() const;
-    int              bit_size() const;
-    bool             is_zero() const;
+  void             trim();
+  int              size() const;
+  int              bit_size() const;
+  bool             is_zero() const;
+  bool             is_one() const;
 };

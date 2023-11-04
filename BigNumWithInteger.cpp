@@ -52,10 +52,13 @@ BigNumWithInteger::BigNumWithInteger(string s) {
     digits.push_back(value);
     pos += BIT_PER_DIGIT;
   } 
+
+  this->trim();
 }
 
 string BigNumWithInteger::to_string() const
 {
+  if(is_zero()) return "0";
   string binary = "";
   for(uint val : digits) {
     for(int i = 0; i < BIT_PER_DIGIT; i++) {
@@ -89,15 +92,15 @@ BigNumWithInteger BigNumWithInteger::operator+(const BigNumWithInteger &a)
       sum = carry;
       if(i < n) sum += digits[i];
       if(i < m) sum += a.digits[i];
-      ans.digits[i] = sum & (BASE - 1);
-      carry = sum >> BIT_PER_DIGIT;
+      ans.digits[i] = sum % BASE;
+      carry = sum / BASE;
     }
     ans.digits[max(n, m)] = carry;
     ans.trim();
     return ans;
   }
   else {
-    if(this->abs() > a.abs()) {
+    if(this->abs() >= a.abs()) {
       ans.sign = sign;
       int carry = 0;
       ll sum = 0;
@@ -145,12 +148,13 @@ bool BigNumWithInteger::operator<(const BigNumWithInteger &a)
 {
   if(sign != a.sign) return sign < a.sign;
 
-  bool is_negative = sign == -1;
+  bool is_negative = (sign == -1);
 
   int n = size();
   int m = a.size();
-  if(n < m) return true;
-  if(n > m) return false;
+  if(n < m) return true ^ is_negative;
+  if(n > m) return false ^ is_negative;
+
   for(int i = n - 1; i >= 0; i--) {
     if(digits[i] < a.digits[i]) return true ^ is_negative;
     if(digits[i] > a.digits[i]) return false ^ is_negative;
@@ -161,12 +165,12 @@ bool BigNumWithInteger::operator<(const BigNumWithInteger &a)
 bool BigNumWithInteger::operator<=(const BigNumWithInteger &a)
 {
   if(sign != a.sign) return sign < a.sign;
-  bool is_negative = sign == -1;
+  bool is_negative = (sign == -1);
 
   int n = size();
   int m = a.size();
-  if(n < m) return true;
-  if(n > m) return false;
+  if(n < m) return true ^ is_negative;
+  if(n > m) return false ^ is_negative;
   for(int i = n - 1; i >= 0; i--) {
     if(digits[i] < a.digits[i]) return true ^ is_negative;
     if(digits[i] > a.digits[i]) return false ^ is_negative;
@@ -266,28 +270,31 @@ BigNumWithInteger BigNumWithInteger::operator<<(int i)
   return ans;
 }
 
-BigNumWithInteger BigNumWithInteger::operator%(const BigNumWithInteger &a) const
+BigNumWithInteger BigNumWithInteger::operator%(BigNumWithInteger a) const
 {
   BigNumWithInteger ans(*this);
-  if(ans < a) return ans;
+  a = a.abs();
+  ans = ans.abs();
+  if(ans < a) {
+    ans.sign = sign;
+    return ans;
+  }
 
   while(ans >= a) {
     ans = ans - a;
   }
   ans.trim();
+  ans.sign = sign;
   return ans;
 }
 
-BigNumWithInteger BigNumWithInteger::operator%=(const BigNumWithInteger &a)
+BigNumWithInteger BigNumWithInteger::operator%=(BigNumWithInteger a)
 {
-  while(*this >= a) {
-    *this = *this - a;
-  }
-  trim();
+  *this = *this % a;
   return *this;
 }
 
-BigNumWithInteger BigNumWithInteger::operator*(const BigNumWithInteger &a) const
+BigNumWithInteger BigNumWithInteger::operator*(const BigNumWithInteger& a) const
 {
   int n = size();
   int m = a.size();
@@ -321,16 +328,20 @@ BigNumWithInteger BigNumWithInteger::abs() const
 BigNumWithInteger BigNumWithInteger::mulMod(BigNumWithInteger d, BigNumWithInteger n)
 {
   BigNumWithInteger ans;
-  ans.sign = this->sign * d.sign;
   if(d.is_zero() || this->is_zero()) {
     return ans;
   }
 
+  ans.sign = this->sign * d.sign;
+  d = d.abs();
+
   string binary = d.to_string();
   reverse(binary.begin(), binary.end());
   
-  
-  BigNumWithInteger temp = (*this) % n;
+  BigNumWithInteger temp = (*this);
+  temp = temp.abs();
+  temp%=n;
+
   for(int i = 0; i < binary.size(); i++) {
     if(binary[i] == '1') {
       ans = (ans + temp) % n;
@@ -338,28 +349,56 @@ BigNumWithInteger BigNumWithInteger::mulMod(BigNumWithInteger d, BigNumWithInteg
     temp = (temp + temp) % n;
   }
 
-  return ans;
+  return ans%n;
 }
 
 BigNumWithInteger BigNumWithInteger::powMod(BigNumWithInteger d, BigNumWithInteger n)
 {
   BigNumWithInteger ans(1);
-  BigNumWithInteger x(*this);
+  if(this->is_zero()) return BigNumWithInteger(0);
   if(d.is_zero())  return ans;
+  if(d.is_one()) return *this;
+
+  if(d.sign == -1) {
+    throw "Exponent must be positive";
+  }
 
   string binary = d.to_string();
   reverse(binary.begin(), binary.end());
 
+  BigNumWithInteger x(*this); 
+  x = x.abs();
+  x %= n;
   for(int i = binary.size() - 1; i >= 0; i--) {
-    int ans_sz = ans.size();
-
-    if(! (ans.is_zero() || (ans.size() == 1 && ans[0] == 1 && ans.sign == 1)))  
+    if(! (ans.is_zero() || ans.is_one()))
+    {
       ans = ans.mulMod(ans, n);
+    }     
 
     if(binary[i] == '1') {
       ans = ans.mulMod(x, n);
     }
+
+    if(ans >= n) {
+      cerr << "ans >= n\n";
+    }
   }
+
+  ans %= n;
+
+  // cout << "ans = " << ans << endl;
+  // cout << "n   = " << n << endl;
+  // cout << "ans >= n: " << (ans >= n) << endl;
+  // cout << ans.size() << ' ' << n.size() << endl;
+  // cout << ans.bit_size() << ' ' << n.bit_size() << endl;
+  // cout << ans.digits.back() << ' ' << n.digits.back() << endl;
+
+  if(sign == 1) {
+    ans.sign = 1;
+  } else {
+    ans.sign = d[0] & 1 ? -1 : 1;
+  }
+
   return ans;
 }
 
@@ -371,7 +410,7 @@ ostream &operator<<(ostream & out, const BigNumWithInteger &a)
 
 void BigNumWithInteger::trim()
 {
-  while(digits.size() > 1 && !digits.back()) {
+  while(digits.size() > 0 && !digits.back()) {
     digits.pop_back();
   }
 }
@@ -389,4 +428,9 @@ int BigNumWithInteger::bit_size() const
 bool BigNumWithInteger::is_zero() const
 {
   return digits.empty() || (digits.size() == 1 && digits[0] == 0);
+}
+
+bool BigNumWithInteger::is_one() const
+{
+  return digits.size() == 1 && digits[0] == 1;
 }
